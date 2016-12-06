@@ -4,7 +4,9 @@ from timeit import default_timer as timer
 
 white_win_value = float("inf")
 black_win_value = float("-inf")
+
 my_globals = {'nodes': 0}
+abpruning = True
 
 def material(board, color):
     return len(board.pieces(chess.PAWN, color))\
@@ -25,28 +27,36 @@ def evaluate(board):
 
 
 # white is max agent
-def max_value(board, depth):
+def max_value(board, depth, alpha, beta):
     if depth == 0 or board.is_game_over():
         return evaluate(board)
     v = black_win_value
     for move in board.legal_moves:
         board.push(move)
         my_globals['nodes'] += 1
-        v = max(v, min_value(board, depth-1))
+        v = max(v, min_value(board, depth-1, alpha, beta))
         board.pop()
+        if abpruning:
+            if v >= beta:
+                return v
+            alpha = max(alpha, v)
     return v
 
 
 # black is min agent
-def min_value(board, depth):
+def min_value(board, depth, alpha, beta):
     if depth == 0 or board.is_game_over():
         return evaluate(board)
     v = white_win_value
     for move in board.legal_moves:
         board.push(move)
         my_globals['nodes'] += 1
-        v = min(v, max_value(board, depth-1))
+        v = min(v, max_value(board, depth-1, alpha, beta))
         board.pop()
+        if abpruning:
+            if v <= alpha:
+                return v
+            beta = min(beta, v)
     return v
 
 
@@ -57,7 +67,7 @@ def search_max(board, depth):
     for move in board.legal_moves:
         board.push(move)
         my_globals['nodes'] += 1
-        v = min_value(board, depth-1)
+        v = min_value(board, depth-1, black_win_value, white_win_value)
         board.pop()
         if v > best_value:
             best_value = v
@@ -72,11 +82,12 @@ def search_min(board, depth):
     for move in board.legal_moves:
         board.push(move)
         my_globals['nodes'] += 1
-        v = max_value(board, depth-1)
+        v = max_value(board, depth-1, black_win_value, white_win_value)
         board.pop()
         if v < best_value:
             best_value = v
             best_move = move
+    print "value", best_value
     return best_move
 
 
@@ -92,6 +103,7 @@ def search(board, depth):
         move = search_min(board, depth)
     end = timer()
     seconds = end - start
+    print "nodes", my_globals['nodes']
     print "time", seconds
     print "kn/s", my_globals['nodes'] / 1000.0 / seconds
     print "move",
@@ -102,3 +114,7 @@ test_board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
 print search(test_board, 2)
 print ""
 print search(test_board, 3)
+print ""
+print search(test_board, 4)
+print ""
+print search(test_board, 5)
