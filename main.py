@@ -1,5 +1,6 @@
 import chess
 from timeit import default_timer as timer
+import random
 
 white_win_value = float("inf")
 black_win_value = float("-inf")
@@ -114,7 +115,12 @@ def search(board, depth):
     print "time", seconds
     print "kn/s", my_globals['nodes'] / 1000.0 / seconds
     print "move\n",
-    return move
+
+    if move is None:
+        legal_moves = list(board.legal_moves)
+        return legal_moves[random.randint(0, len(legal_moves) - 1)]
+    else:
+        return move
 
 
 

@@ -34,7 +34,7 @@ class Sunfish(Player):
 
         assert(gn_current.board().turn == False)
 
-        print str(gn_current.board())
+        # print str(gn_current.board())
         # Apply last_move
         crdn = str(gn_current.move)
         move = (sunfish.parse(crdn[0:2]), sunfish.parse(crdn[2:4]))
@@ -105,7 +105,7 @@ class MinimaxPlayer(Player):
     def move(self, gn_current):
         assert gn_current.board().turn is True
 
-        print str(gn_current.board())
+        # print str(gn_current.board())
 
         board = gn_current.board()
         uci_move = str(main.search(board, self._depth))
@@ -123,11 +123,13 @@ class MinimaxPlayer(Player):
 def play():
     gn_current = chess.pgn.Game()
 
-    player_a = MinimaxPlayer()
+    player_a = MinimaxPlayer(depth=4)
     player_b = Sunfish(maxn=2)
 
     times = {'A': 0.0, 'B': 0.0}
     move_count = 0
+
+    print "NEW GAME\n"
 
     while True:
         for side, player in [('A', player_a), ('B', player_b)]:
@@ -144,24 +146,28 @@ def play():
             times[side] += time.time() - t0
             print '=========== Player %s: %s' % (side, gn_current.move)
             s = str(gn_current.board())
+            print s
+            print "total moves in game: " + str(move_count)
 
             if gn_current.board().is_checkmate():
-                return side, times
+                return side, times, move_count
             elif gn_current.board().is_stalemate():
                 return '-', times
             elif gn_current.board().can_claim_fifty_moves():
                 return '-', times
             elif s.find('K') == -1 or s.find('k') == -1:
-                return side, times
+                return side, times, move_count
 
-# def play_games():
-#     f = open('games.txt', 'a')
-#     f.write("10 GAMES BETWEEN RANDOM AND SUNFISH AGENTS\n")
-#     for _ in range(10):
-#         f.write(str(play()) + "\n")
-#
-#     f.close()
+def play_games(num_games):
+    open('games.txt', 'w').close()
+    f = open('games.txt', 'a')
+    f.write(str(num_games) + " GAMES BETWEEN MINIMAX AND SUNFISH AGENTS\n")
+    for _ in range(num_games):
+        results = list(play())
+        f.write(str(results[0]) + " " + str(results[1]) + " " + str(results[2]) + "\n")
+    f.close()
 
 
 if __name__ == '__main__':
-    play()
+    print str(play())
+    # play_games(2)
