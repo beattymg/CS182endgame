@@ -1,23 +1,19 @@
-
-import math
-import chess, chess.pgn
-import chess.uci
-import sunfish
-import heapq
 import time
-import re
-import string
-import numpy
-import pickle
-import random
 import traceback
 
+import chess
+import chess.pgn
+import chess.uci
+
+import sunfish
+
+import main
+
 def create_move(board, crdn):
-    # workaround for pawn promotions
     move = chess.Move.from_uci(crdn)
     if board.piece_at(move.from_square).piece_type == chess.PAWN:
         if int(move.to_square/8) in [0, 7]:
-            move.promotion = chess.QUEEN # always promote to queen
+            move.promotion = chess.QUEEN
     return move
 
 class Player(object):
@@ -25,10 +21,6 @@ class Player(object):
         raise NotImplementedError()
 
 class RLPlayer(Player):
-    def move(self, gn_current):
-        raise NotImplementedError()
-
-class MinimaxPlayer(Player):
     def move(self, gn_current):
         raise NotImplementedError()
 
@@ -42,6 +34,7 @@ class Sunfish(Player):
 
         assert(gn_current.board().turn == False)
 
+        print str(gn_current.board())
         # Apply last_move
         crdn = str(gn_current.move)
         move = (sunfish.parse(crdn[0:2]), sunfish.parse(crdn[2:4]))
@@ -49,6 +42,8 @@ class Sunfish(Player):
 
         t0 = time.time()
         move, score = searcher.search(self._pos, self._maxn)
+        # print "move and score is\n"
+        # print move, score
         print time.time() - t0, move, score
         self._pos = self._pos.move(move)
 
@@ -62,6 +57,10 @@ class Sunfish(Player):
         return gn_new
 
 class Human(Player):
+    def __init__(self, maxn=1e4):
+        self._pos = sunfish.Position(sunfish.initial, 0, (True,True), (True,True), 0, 0)
+        self._maxn = maxn
+
     def move(self, gn_current):
         bb = gn_current.board()
 
@@ -91,13 +90,44 @@ class Human(Player):
 
         return gn_new
 
+
+class Random(Player):
+    def __init__(self, maxn=2):
+        return
+
+    def move(self, gn_current):
+        return
+
+class MinimaxPlayer(Player):
+    def __init__(self, depth=2):
+        self._depth = depth
+
+    def move(self, gn_current):
+        assert gn_current.board().turn is True
+
+        print str(gn_current.board())
+
+        board = gn_current.board()
+        uci_move = str(main.search(board, self._depth))
+        move = create_move(gn_current.board(), uci_move)
+
+        gn_new = chess.pgn.GameNode()
+        gn_new.parent = gn_current
+        gn_new.move = move
+
+        # print str(gn_new.board())
+
+        return gn_new
+
+
 def play():
     gn_current = chess.pgn.Game()
 
-    player_a = Human()
-    player_b = Sunfish(maxn=10)
+    player_a = MinimaxPlayer()
+    player_b = Sunfish(maxn=2)
 
     times = {'A': 0.0, 'B': 0.0}
+    move_count = 0
 
     while True:
         for side, player in [('A', player_a), ('B', player_b)]:
@@ -110,6 +140,7 @@ def play():
                 traceback.print_exc()
                 return side + '-exception', times
 
+            move_count += 1
             times[side] += time.time() - t0
             print '=========== Player %s: %s' % (side, gn_current.move)
             s = str(gn_current.board())
@@ -122,6 +153,15 @@ def play():
                 return '-', times
             elif s.find('K') == -1 or s.find('k') == -1:
                 return side, times
+
+# def play_games():
+#     f = open('games.txt', 'a')
+#     f.write("10 GAMES BETWEEN RANDOM AND SUNFISH AGENTS\n")
+#     for _ in range(10):
+#         f.write(str(play()) + "\n")
+#
+#     f.close()
+
 
 if __name__ == '__main__':
     play()
