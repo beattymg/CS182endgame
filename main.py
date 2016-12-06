@@ -106,15 +106,17 @@ def search(board, depth):
     print "nodes", my_globals['nodes']
     print "time", seconds
     print "kn/s", my_globals['nodes'] / 1000.0 / seconds
-    print "move",
+    print "move\n",
     return move
 
 
-test_board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
-print search(test_board, 2)
-print ""
-print search(test_board, 3)
-print ""
-print search(test_board, 4)
-print ""
-print search(test_board, 5)
+
+if __name__ == '__main__':
+    test_board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
+    print search(test_board, 2)
+    print ""
+    print search(test_board, 3)
+    print ""
+    print search(test_board, 4)
+    print ""
+    print search(test_board, 5)
