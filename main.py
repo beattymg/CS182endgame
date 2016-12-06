@@ -122,14 +122,36 @@ def search(board, depth):
     else:
         return move
 
-
-
-if __name__ == '__main__':
-    test_board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
-    print search(test_board, 2)
-    print ""
-    print search(test_board, 3)
-    print ""
-    print search(test_board, 4)
-    print ""
-    print search(test_board, 5)
+# if __name__ == '__main__':
+    # print "TACTIC 1"
+    # test_board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
+    # print "2-ply"
+    # print search(test_board, 2)
+    # print "\n3-ply"
+    # print search(test_board, 3)
+    # print "\n4-ply"
+    # print search(test_board, 4)
+    # print "\n5-ply"
+    # print search(test_board, 5)
+    #
+    # print "\nTACTIC 2"
+    # test_board = chess.Board("r1b1k1r1/p1pq1p2/1p1p1npp/3Pp3/2P4N/2PBP3/P1Q2PPP/R4RK1 b q - 3 15")
+    # print "\n2-ply"
+    # print search(test_board, 2)
+    # print "\n3-ply"
+    # print search(test_board, 3)
+    # print "\n4-ply"
+    # print search(test_board, 4)
+    # print "\n5-ply"
+    # print search(test_board, 5)
+    #
+    # print "\nTACTIC 3"
+    # test_board = chess.Board("rn1q1rk1/ppp1b1pp/3pP3/3p4/3P1B2/5NP1/PPP4P/R2Q1K1R b - - 0 13")
+    # print "\n2-ply"
+    # print search(test_board, 2)
+    # print "\n3-ply"
+    # print search(test_board, 3)
+    # print "\n4-ply"
+    # print search(test_board, 4)
+    # print "\n5-ply"
+    # print search(test_board, 5)
