@@ -1,5 +1,4 @@
 import chess
-import time
 from timeit import default_timer as timer
 
 white_win_value = float("inf")
@@ -64,11 +63,15 @@ def search_max(board, depth):
     # white to move - choose highest of next min_values
     best_move = None
     best_value = black_win_value
+    alpha = black_win_value
+    beta = white_win_value
     for move in board.legal_moves:
         board.push(move)
         my_globals['nodes'] += 1
-        v = min_value(board, depth-1, black_win_value, white_win_value)
+        v = min_value(board, depth-1, alpha, beta)
         board.pop()
+        if abpruning:
+            alpha = max(alpha, v)
         if v > best_value:
             best_value = v
             best_move = move
@@ -79,11 +82,15 @@ def search_min(board, depth):
     # white to move - choose lowest of next max_values
     best_move = None
     best_value = white_win_value
+    alpha = black_win_value
+    beta = white_win_value
     for move in board.legal_moves:
         board.push(move)
         my_globals['nodes'] += 1
-        v = max_value(board, depth-1, black_win_value, white_win_value)
+        v = max_value(board, depth-1, alpha, beta)
         board.pop()
+        if abpruning:
+            beta = min(beta, v)
         if v < best_value:
             best_value = v
             best_move = move
