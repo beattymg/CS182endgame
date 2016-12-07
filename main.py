@@ -2,6 +2,7 @@ import chess
 import chess.polyglot
 from timeit import default_timer as timer
 import random
+import evals
 
 white_win_value = float("inf")
 black_win_value = float("-inf")
@@ -9,28 +10,10 @@ black_win_value = float("-inf")
 my_globals = {'nodes': 0}
 abpruning = True
 
-def material(board, color):
-    return len(board.pieces(chess.PAWN, color))\
-           + (3 * len(board.pieces(chess.KNIGHT, color)))\
-           + (3 * len(board.pieces(chess.BISHOP, color)))\
-           + (5 * len(board.pieces(chess.ROOK, color)))\
-           + (9 * len(board.pieces(chess.QUEEN, color)))
-
-
-def evaluate(board):
-    if board.is_game_over():
-        if board.result() == "0-1":
-            return black_win_value
-        if board.result() == "1-0":
-            return white_win_value
-        else: return 0
-    return material(board, chess.WHITE) - material(board, chess.BLACK)
-
-
 # white is max agent
 def max_value(board, depth, alpha, beta):
     if depth == 0 or board.is_game_over():
-        return evaluate(board)
+        return evals.evaluate(board)
     v = black_win_value
     for move in board.legal_moves:
         board.push(move)
@@ -47,7 +30,7 @@ def max_value(board, depth, alpha, beta):
 # black is min agent
 def min_value(board, depth, alpha, beta):
     if depth == 0 or board.is_game_over():
-        return evaluate(board)
+        return evals.evaluate(board)
     v = white_win_value
     for move in board.legal_moves:
         board.push(move)

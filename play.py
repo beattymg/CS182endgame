@@ -109,6 +109,7 @@ class MinimaxPlayer(Player):
         # print str(gn_current.board())
 
         board = gn_current.board()
+        t0 = time.time()
 
         if self._opening_book:
             uci_move = str(main.search_with_opening_book(board))
@@ -119,6 +120,7 @@ class MinimaxPlayer(Player):
             uci_move = str(main.search(board, self._depth))
 
         move = create_move(gn_current.board(), uci_move)
+        print time.time() - t0, move
 
         gn_new = chess.pgn.GameNode()
         gn_new.parent = gn_current
@@ -178,5 +180,5 @@ def play_games(num_games):
 
 
 if __name__ == '__main__':
-    print str(play())
+    play()
     # play_games(2)
