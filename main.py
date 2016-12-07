@@ -1,4 +1,5 @@
 import chess
+import chess.polyglot
 from timeit import default_timer as timer
 import random
 
@@ -122,7 +123,21 @@ def search(board, depth):
     else:
         return move
 
-# if __name__ == '__main__':
+
+def search_with_opening_book(board):
+    reader = chess.polyglot.open_reader('komodo.bin')
+    moves = []
+    for entry in reader.find_all(board):
+        if entry.move() in board.legal_moves:
+            moves.append(entry.move())
+
+    if not moves:
+        return chess.Move.null()
+    else:
+        return random.choice(moves)
+
+if __name__ == '__main__':
+    raise NotImplemented
     # print "TACTIC 1"
     # test_board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
     # print "2-ply"

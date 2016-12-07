@@ -99,8 +99,9 @@ class Random(Player):
         return
 
 class MinimaxPlayer(Player):
-    def __init__(self, depth=2):
+    def __init__(self, depth=2, opening_book=True):
         self._depth = depth
+        self._opening_book = opening_book
 
     def move(self, gn_current):
         assert gn_current.board().turn is True
@@ -108,7 +109,15 @@ class MinimaxPlayer(Player):
         # print str(gn_current.board())
 
         board = gn_current.board()
-        uci_move = str(main.search(board, self._depth))
+
+        if self._opening_book:
+            uci_move = str(main.search_with_opening_book(board))
+            if uci_move == "0000":
+                self._opening_book = False
+                uci_move = str(main.search(board, self._depth))
+        else:
+            uci_move = str(main.search(board, self._depth))
+
         move = create_move(gn_current.board(), uci_move)
 
         gn_new = chess.pgn.GameNode()
