@@ -4,107 +4,60 @@ from timeit import default_timer as timer
 import random
 import evals
 
-white_win_value = float("inf")
-black_win_value = float("-inf")
-
 my_globals = {'nodes': 0}
 abpruning = True
 
-# white is max agent
-def max_value(board, depth, alpha, beta):
+
+def negamax_value(board, depth, alpha, beta, color):
     if depth == 0 or board.is_game_over():
-        return evals.evaluate(board)
-    v = black_win_value
+        return color * evals.evaluate(board)
+    best_value = float("-inf")
     for move in board.legal_moves:
         board.push(move)
         my_globals['nodes'] += 1
-        v = max(v, min_value(board, depth-1, alpha, beta))
+        v = -negamax_value(board, depth-1, -beta, -alpha, -color)
+        best_value = max(best_value, v)
         board.pop()
         if abpruning:
-            if v >= beta:
-                return v
             alpha = max(alpha, v)
-    return v
+            if alpha >= beta:
+                return best_value
+    return best_value
 
 
-# black is min agent
-def min_value(board, depth, alpha, beta):
-    if depth == 0 or board.is_game_over():
-        return evals.evaluate(board)
-    v = white_win_value
-    for move in board.legal_moves:
-        board.push(move)
-        my_globals['nodes'] += 1
-        v = min(v, max_value(board, depth-1, alpha, beta))
-        board.pop()
-        if abpruning:
-            if v <= alpha:
-                return v
-            beta = min(beta, v)
-    return v
+def search(board, depth):
+    color = 1 if board.turn else -1
 
+    start = timer()
+    my_globals['nodes'] = 0
 
-def search_max(board, depth):
-    # white to move - choose highest of next min_values
     best_move = None
-    best_value = black_win_value
-    alpha = black_win_value
-    beta = white_win_value
+    best_value = float("-inf")
+
+    alpha = float("-inf")
+    beta = float("+inf")
     for move in board.legal_moves:
         board.push(move)
         my_globals['nodes'] += 1
-        v = min_value(board, depth-1, alpha, beta)
+        v = -negamax_value(board, depth-1, -beta, -alpha, -color)
         board.pop()
         if abpruning:
             alpha = max(alpha, v)
         if v > best_value:
             best_value = v
             best_move = move
-    return best_move
-
-
-def search_min(board, depth):
-    # white to move - choose lowest of next max_values
-    best_move = None
-    best_value = white_win_value
-    alpha = black_win_value
-    beta = white_win_value
-    for move in board.legal_moves:
-        board.push(move)
-        my_globals['nodes'] += 1
-        v = max_value(board, depth-1, alpha, beta)
-        board.pop()
-        if abpruning:
-            beta = min(beta, v)
-        if v < best_value:
-            best_value = v
-            best_move = move
-    print "value", best_value
-    return best_move
-
-
-def search(board, depth):
-    start = timer()
-    my_globals['nodes'] = 0
-    move = None
-    if board.turn:
-        # white to move
-        move = search_max(board, depth)
-    else:
-        # black to move
-        move = search_min(board, depth)
     end = timer()
     seconds = end - start
     print "nodes", my_globals['nodes']
     print "time", seconds
     print "kn/s", my_globals['nodes'] / 1000.0 / seconds
-    print "move\n",
+    print "move",
 
-    if move is None:
-        legal_moves = list(board.legal_moves)
-        return legal_moves[random.randint(0, len(legal_moves) - 1)]
-    else:
-        return move
+    # if move is None:
+    #     legal_moves = list(board.legal_moves)
+    #     return legal_moves[random.randint(0, len(legal_moves) - 1)]
+    # else:
+    return best_move
 
 
 def search_with_opening_book(board):
@@ -119,11 +72,12 @@ def search_with_opening_book(board):
     else:
         return random.choice(moves)
 
+
 if __name__ == '__main__':
     raise NotImplemented
     # print "TACTIC 1"
     # test_board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
-    # print "2-ply"
+    # print "\n2-ply"
     # print search(test_board, 2)
     # print "\n3-ply"
     # print search(test_board, 3)
@@ -145,6 +99,17 @@ if __name__ == '__main__':
     #
     # print "\nTACTIC 3"
     # test_board = chess.Board("rn1q1rk1/ppp1b1pp/3pP3/3p4/3P1B2/5NP1/PPP4P/R2Q1K1R b - - 0 13")
+    # print "\n2-ply"
+    # print search(test_board, 2)
+    # print "\n3-ply"
+    # print search(test_board, 3)
+    # print "\n4-ply"
+    # print search(test_board, 4)
+    # print "\n5-ply"
+    # print search(test_board, 5)
+    #
+    # print "\nTACTIC 4"
+    # test_board = chess.Board("5k2/6pp/R2P1p2/4p3/pr2P3/5P1P/8/6K1 w - - 1 33")
     # print "\n2-ply"
     # print search(test_board, 2)
     # print "\n3-ply"
