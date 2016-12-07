@@ -74,17 +74,17 @@ def table_eval(board, color):
                 square = flip(square)
 
             if piece is chess.PAWN:
-                score += pawn_table[square]
+                score += (pawn_table[square] / 50.0)
             elif piece is chess.KNIGHT:
-                score += knight_table[square]
+                score += (knight_table[square] / 50.0)
             elif piece is chess.BISHOP:
-                score += bishop_table[square]
+                score += (bishop_table[square] / 50.0)
             elif piece is chess.ROOK:
-                score += rook_table[square]
+                score += (rook_table[square] / 50.0)
             elif piece is chess.QUEEN:
-                score += queen_table[square]
+                score += (queen_table[square] / 50.0)
             elif piece is chess.KING:
-                score += king_table[square]
+                score += (king_table[square] / 50.0)
 
     return score
 
@@ -92,14 +92,19 @@ def table_eval(board, color):
 def flip(square):
     return (7 - (square % 8)) + ((7 - (square // 8)) * 8)
 
+def num_pieces(board):
+    pieces = 0
+    for s in chess.SQUARES:
+        if board.piece_at(s):
+            pieces += 1
+    return pieces
 
 def material(board, color):
     return len(board.pieces(chess.PAWN, color))\
-           + (3 * len(board.pieces(chess.KNIGHT, color)))\
-           + (3 * len(board.pieces(chess.BISHOP, color)))\
-           + (5 * len(board.pieces(chess.ROOK, color)))\
-           + (9 * len(board.pieces(chess.QUEEN, color)))\
-           + (200 * len(board.pieces(chess.KING, color)))
+           + (3.0 * len(board.pieces(chess.KNIGHT, color)))\
+           + (3.0 * len(board.pieces(chess.BISHOP, color)))\
+           + (5.0 * len(board.pieces(chess.ROOK, color)))\
+           + (9.0 * len(board.pieces(chess.QUEEN, color)))
 
 
 def evaluate(board):
@@ -110,8 +115,14 @@ def evaluate(board):
             return white_win_value
         else: return 0
 
-    return material(board, chess.WHITE) - material(board, chess.BLACK)
-    # return table_eval(board, chess.WHITE) - table_eval(board, chess.BLACK)
+    # return material(board, chess.WHITE) - material(board, chess.BLACK)
+    material_score = (material(board, chess.WHITE) - material(board, chess.BLACK)) / 39.0
+    position_score = (table_eval(board, chess.WHITE) - table_eval(board, chess.BLACK)) / num_pieces(board)
+
+    mat_weight = 10.0
+    pos_weight = 4.0
+
+    return (mat_weight * material_score) + (pos_weight * position_score)
 
 if __name__ == '__main__':
     raise NotImplemented
