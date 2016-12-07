@@ -8,14 +8,14 @@ my_globals = {'nodes': 0}
 abpruning = True
 
 
-def negamax_value(board, depth, alpha, beta, color):
+def negamax(board, depth, alpha, beta, color):
     if depth == 0 or board.is_game_over():
         return color * evals.evaluate(board)
     best_value = float("-inf")
     for move in board.legal_moves:
         board.push(move)
         my_globals['nodes'] += 1
-        v = -negamax_value(board, depth-1, -beta, -alpha, -color)
+        v = -negamax(board, depth - 1, -beta, -alpha, -color)
         best_value = max(best_value, v)
         board.pop()
         if abpruning:
@@ -39,7 +39,7 @@ def search(board, depth):
     for move in board.legal_moves:
         board.push(move)
         my_globals['nodes'] += 1
-        v = -negamax_value(board, depth-1, -beta, -alpha, -color)
+        v = -negamax(board, depth - 1, -beta, -alpha, -color)
         board.pop()
         if abpruning:
             alpha = max(alpha, v)
