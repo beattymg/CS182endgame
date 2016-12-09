@@ -130,6 +130,10 @@ class NegamaxAgent():
         # else:
         return best_move
 
+    # e.g. self.move(self.search()) updates internal board representation with best move found by NegaMax search
+    def move(self, move):
+        self.board.push(move)
+
 
 def search_with_opening_book(board):
     reader = chess.polyglot.open_reader('komodo.bin')
