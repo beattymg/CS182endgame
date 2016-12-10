@@ -3,6 +3,7 @@ import chess.polyglot
 from timeit import default_timer as timer
 import random
 import evals
+from evaluator import Evaluator
 
 
 class NodeType:
@@ -31,10 +32,11 @@ class NegamaxAgent():
         if transposition_table:
             self.tt = [None] * table_size
         self.verbose = verbose
+        self.evaluator = Evaluator()
 
     def negamax(self, depth, alpha, beta, color):
         if depth == 0 or self.board.is_game_over():
-            return color * evals.evaluate(self.board)
+            return color * self.evaluator.evaluate(self.board)
 
         legal_moves = self.board.legal_moves
 
@@ -124,11 +126,11 @@ class NegamaxAgent():
                 print "kn/s", self.nodes / 1000.0 / seconds
                 print "move", best_move
 
-        # if move is None:
-        #     legal_moves = list(board.legal_moves)
-        #     return legal_moves[random.randint(0, len(legal_moves) - 1)]
-        # else:
-        return best_move
+        if best_move is None:
+            legal_moves = list(self.board.legal_moves)
+            return legal_moves[random.randint(0, len(legal_moves) - 1)]
+        else:
+            return best_move
 
     # e.g. self.move(self.search()) updates internal board representation with best move found by NegaMax search
     def move(self, move):

@@ -7,6 +7,9 @@ import chess.uci
 
 import sunfish
 
+from stockfish import Stockfish
+import subprocess
+
 import main
 
 def create_move(board, crdn):
@@ -102,6 +105,8 @@ class MinimaxPlayer(Player):
     def __init__(self, depth=2, opening_book=True):
         self._depth = depth
         self._opening_book = opening_book
+        self._negamax = main.NegamaxAgent(chess.Board(), max_time=15,\
+                         transposition_table=True, abpruning=True, verbose=False)
 
     def move(self, gn_current):
         assert gn_current.board().turn is True
@@ -109,15 +114,16 @@ class MinimaxPlayer(Player):
         # print str(gn_current.board())
 
         board = gn_current.board()
+        self._negamax.board = board
         t0 = time.time()
 
         if self._opening_book:
             uci_move = str(main.search_with_opening_book(board))
             if uci_move == "0000":
                 self._opening_book = False
-                uci_move = str(main.search(board, self._depth))
+                uci_move = str(self._negamax.search())
         else:
-            uci_move = str(main.search(board, self._depth))
+            uci_move = str(self._negamax.search())
 
         move = create_move(gn_current.board(), uci_move)
         print time.time() - t0, move
@@ -180,5 +186,11 @@ def play_games(num_games):
 
 
 if __name__ == '__main__':
+    # play_games(6)
     play()
     # play_games(2)
+    # stockfish = Stockfish()
+    # stockfish.set_position(['e2e4', 'e7e6'])
+    # print(stockfish.get_best_move())
+    # print(stockfish.is_move_correct('a2a3'))
+

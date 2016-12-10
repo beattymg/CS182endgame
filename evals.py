@@ -115,14 +115,14 @@ def evaluate(board):
             return white_win_value
         else: return 0
 
-    # return material(board, chess.WHITE) - material(board, chess.BLACK)
-    material_score = (material(board, chess.WHITE) - material(board, chess.BLACK)) / 39.0
-    position_score = (table_eval(board, chess.WHITE) - table_eval(board, chess.BLACK)) / num_pieces(board)
-
-    mat_weight = 10.0
-    pos_weight = 4.0
-
-    return (mat_weight * material_score) + (pos_weight * position_score)
+    return material(board, chess.WHITE) - material(board, chess.BLACK)
+    # material_score = (material(board, chess.WHITE) - material(board, chess.BLACK)) / 39.0
+    # position_score = (table_eval(board, chess.WHITE) - table_eval(board, chess.BLACK)) / num_pieces(board)
+    #
+    # mat_weight = 10.0
+    # pos_weight = 4.0
+    #
+    # return (mat_weight * material_score) + (pos_weight * position_score)
 
 if __name__ == '__main__':
     raise NotImplemented
