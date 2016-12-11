@@ -32,7 +32,7 @@ class NegamaxAgent():
         if transposition_table:
             self.tt = [None] * table_size
         self.verbose = verbose
-        self.evaluator = Evaluator()
+        self.evaluator = Evaluator(verbose=False)
 
     def negamax(self, depth, alpha, beta, color):
         if depth == 0 or self.board.is_game_over():

@@ -1,5 +1,6 @@
 import chess
 import chess.polyglot
+import chess.syzygy
 from timeit import default_timer as timer
 import random
 
@@ -135,10 +136,10 @@ def evaluate(board):
     #
     # return (mat_weight * material_score) + (pos_weight * position_score)
 
-def num_controlled_squares(board):
+def num_controlled_squares(board, color):
     controlled_squares = 0
-    for _ in chess.SQUARES:
-        if len(board.attackers(chess.WHITE, chess.F3)) > len(board.attackers(chess.BLACK, chess.F3)):
+    for square in chess.SQUARES:
+        if len(board.attackers(color, square)) > len(board.attackers(not color, square)):
             controlled_squares += 1
     return controlled_squares
 
@@ -147,7 +148,7 @@ def naive_mob_score(board):
 
 # finds controlled square advantage
 def mob_eval(board, color):
-    return num_controlled_squares(board)
+    return num_controlled_squares(board, color) - 32
     # return mob_score = naive_mob_score(board)
 
 def ps_eval(board, color):
@@ -242,8 +243,9 @@ def ks_eval(board, color):
 
 
 class Evaluator():
-    def __init__(self, board=None):
+    def __init__(self, verbose=False):
         self._pos_dict = {}
+        self.verbose = verbose
 
     def num_major_pieces(self, board):
         pieces = 0
@@ -256,20 +258,21 @@ class Evaluator():
     def openinggame_eval(self, board):
         score = 0
 
-        mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK)
+        mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK) / 39.0
         pos_score = pos_eval(board, chess.WHITE, False) - pos_eval(board, chess.BLACK, False)
-        mob_score = mob_eval(board, chess.WHITE)
-        ps_score = ps_eval(board, chess.WHITE)
+        mob_score = mob_eval(board, chess.WHITE) / 32.0
+        ps_score = ps_eval(board, chess.WHITE) / 5.0
 
         feature_scores = [mat_score, pos_score, mob_score, ps_score]
         # normalized_scores = [float(i)/sum(feature_scores) for i in feature_scores]
-        feature_weights = [1.0, 1.0, 1.0, 1.0]
+        feature_weights = [10.0, 4.0, 2.0, 3.0]
 
-        print "material score : " + str(mat_score)
-        print "positional score : " + str(pos_score)
-        print "mobility score : " + str(mob_score)
-        print "pawn structure score : " + str(ps_score)
-        # print "king safety score : " + str(ks_score)
+        if self.verbose:
+            print "OPENING"
+            print "material score : " + str(mat_score)
+            print "positional score : " + str(pos_score)
+            print "mobility score : " + str(mob_score)
+            print "pawn structure score : " + str(ps_score)
 
         for i in range(len(feature_scores)):
             score += feature_scores[i] * feature_weights[i]
@@ -279,21 +282,23 @@ class Evaluator():
     def middlegame_eval(self, board):
         score = 0
 
-        mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK)
+        mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK) / 39.0
         pos_score = pos_eval(board, chess.WHITE, False) - pos_eval(board, chess.BLACK, False)
-        mob_score = mob_eval(board, chess.WHITE)
-        ps_score = ps_eval(board, chess.WHITE)
-        ks_score = ks_eval(board, chess.WHITE) - ks_eval(board, chess.BLACK)
+        mob_score = mob_eval(board, chess.WHITE) / 32.0
+        ps_score = ps_eval(board, chess.WHITE) / 5.0
+        ks_score = (ks_eval(board, chess.WHITE) - ks_eval(board, chess.BLACK)) / 60.0
 
         feature_scores = [mat_score, pos_score, mob_score, ps_score, ks_score]
         # normalized_scores = [float(i)/sum(feature_scores) for i in feature_scores]
-        feature_weights = [1.0, 1.0, 1.0, 1.0, 1.0]
+        feature_weights = [10.0, 6.0, 5.0, 3.0, 3.0]
 
-        print "material score : " + str(mat_score)
-        print "positional score : " + str(pos_score)
-        print "mobility score : " + str(mob_score)
-        print "pawn structure score : " + str(ps_score)
-        print "king safety score : " + str(ks_score)
+        if self.verbose:
+            print "MIDDLEGAME"
+            print "material score : " + str(mat_score)
+            print "positional score : " + str(pos_score)
+            print "mobility score : " + str(mob_score)
+            print "pawn structure score : " + str(ps_score)
+            print "king safety score : " + str(ks_score)
 
         for i in range(len(feature_scores)):
             score += feature_scores[i] * feature_weights[i]
@@ -303,23 +308,24 @@ class Evaluator():
     def endgame_eval(self, board):
         score = 0
 
-        mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK)
-        pos_score = pos_eval(board, chess.WHITE, True) - pos_eval(board, chess.BLACK, True)
-        mob_score = mob_eval(board, chess.WHITE)
-        ps_score = ps_eval(board, chess.WHITE)
-        ks_score = ks_eval(board, chess.WHITE) - ks_eval(board, chess.BLACK)
+        mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK) / 39.0
+        pos_score = pos_eval(board, chess.WHITE, False) - pos_eval(board, chess.BLACK, False)
+        mob_score = mob_eval(board, chess.WHITE) / 32.0
+        ps_score = ps_eval(board, chess.WHITE) / 5.0
+        ks_score = (ks_eval(board, chess.WHITE) - ks_eval(board, chess.BLACK)) / 60.0
 
-        print "material score : " + str(mat_score)
-        print "positional score : " + str(pos_score)
-        print "mobility score : " + str(mob_score)
-        print "pawn structure score : " + str(ps_score)
-        print "king safety score : " + str(ks_score)
+        if self.verbose:
+            print "ENDGAME"
+            print "material score : " + str(mat_score)
+            print "positional score : " + str(pos_score)
+            print "mobility score : " + str(mob_score)
+            print "pawn structure score : " + str(ps_score)
+            print "king safety score : " + str(ks_score)
 
         feature_scores = [mat_score, pos_score, mob_score, ps_score, ks_score]
         # normalized_scores = [float(i)/sum(feature_scores) for i in feature_scores]
-        feature_weights = [1.0, 1.0, 1.0, 1.0, 1.0]
+        feature_weights = [10.0, 4.0, 3.0, 5.0, 6.0]
 
-        # includes king safety
         # include pawn advantage
 
         for i in range(len(feature_scores)):
@@ -334,10 +340,10 @@ class Evaluator():
 
         if board.is_game_over():
             if board.result == "1-0":
-                score = float("+inf")
+                score = white_win_value
             elif board.result == "0-1":
-                score = float("-inf")
-            elif board.result == "1/2-1/2":
+                score = black_win_value
+            else:
                 score = 0.0
         else:
             # TODO: create score factor for if side is in check
