@@ -51,19 +51,28 @@ queen_table = [-20,-10,-10, -5, -5,-10,-10,-20,
             -10,  0,  5,  0,  0,  0,  0,-10,
             -20,-10,-10, -5, -5,-10,-10,-20]
 
-king_table = [-30,-40,-40,-50,-50,-40,-40,-30,
-            -30,-40,-40,-50,-50,-40,-40,-30,
-            -30,-40,-40,-50,-50,-40,-40,-30,
-            -30,-40,-40,-50,-50,-40,-40,-30,
-            -20,-30,-30,-40,-40,-30,-30,-20,
-            -10,-20,-20,-20,-20,-20,-20,-10,
-             20, 20,  0,  0,  0,  0, 20, 20,
-             20, 30, 10,  0,  0, 10, 30, 20]
+king_table_open = [-30,-40,-40,-50,-50,-40,-40,-30,
+                -30,-40,-40,-50,-50,-40,-40,-30,
+                -30,-40,-40,-50,-50,-40,-40,-30,
+                -30,-40,-40,-50,-50,-40,-40,-30,
+                -20,-30,-30,-40,-40,-30,-30,-20,
+                -10,-20,-20,-20,-20,-20,-20,-10,
+                 20, 20,  0,  0,  0,  0, 20, 20,
+                 20, 30, 10,  0,  0, 10, 30, 20]
+
+king_table_end = [-50,-40,-30,-20,-20,-30,-40,-50,
+                -30,-20,-10,  0,  0,-10,-20,-30,
+                -30,-10, 20, 30, 30, 20,-10,-30,
+                -30,-10, 30, 40, 40, 30,-10,-30,
+                -30,-10, 30, 40, 40, 30,-10,-30,
+                -30,-10, 20, 30, 30, 20,-10,-30,
+                -30,-30,  0,  0,  0,  0,-30,-30,
+                -50,-30,-30,-30,-30,-30,-30,-50 ]
 
 # create 64 length lists -- ie tables for each piece
 # go through table:
 
-def table_eval(board, color):
+def pos_eval(board, color, endgame):
     score = 0
 
     piece_types = [chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN, chess.KING]
@@ -83,8 +92,10 @@ def table_eval(board, color):
                 score += (rook_table[square] / 50.0)
             elif piece is chess.QUEEN:
                 score += (queen_table[square] / 50.0)
+            elif piece is chess.KING and endgame:
+                score += (king_table_end[square] / 50.0)
             elif piece is chess.KING:
-                score += (king_table[square] / 50.0)
+                score += (king_table_open[square] / 50.0)
 
     return score
 
@@ -150,13 +161,6 @@ def ps_eval(board, color):
     num_isolated_pawns = 0
     num_passed_pawns = 0
 
-    pawn_ram_weight = 1.0
-    doubled_pawn_weight = 1.0
-    isolated_pawn_weight = 1.0
-    passed_pawn_weight = 1.0
-    eight_pawn_penalty = 0.2
-
-
     for pawn in w_pawns:
 
         # check for passed pawns
@@ -179,47 +183,96 @@ def ps_eval(board, color):
             pawn_columns[(pawn % 7)] = 1
 
     if (len(w_pawns) > 7):
-        score -= eight_pawn_penalty
-    score -= num_doubled_pawns * doubled_pawn_weight
-    score -= num_pawn_rams * pawn_ram_weight
-    score -= num_isolated_pawns * isolated_pawn_weight
-    score += num_passed_pawns * passed_pawn_weight
+        score -= 1.0
+    score -= num_doubled_pawns * 1.0
+    score -= num_pawn_rams * 1.0
+    score -= num_isolated_pawns * 1.0
+    score += num_passed_pawns * 1.0
 
     return score
+
+# get row, column from 0-63 square value
+def xy_square(square):
+    x = (square % 8) + 1
+    y = (square / 8) + 1
+    return x, y
+
+# king safety evaluation feature
+def ks_eval(board, color):
+    tropism_score = 0
+    pawn_shield_score = 0
+
+    # tropism
+    king = 0
+    kings = board.pieces(chess.KING, chess.WHITE)
+    for square in kings:
+        king = square
+
+    k_x, k_y = xy_square(king)
+    piece_types = [chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN, chess.KING]
+    for piece in piece_types:
+        piece_squares = board.pieces(piece, color)
+        for square in piece_squares:
+            a_x, a_y = xy_square(square)
+            inv_man_dist = 14 - abs(a_x - k_x) + abs(a_y - k_y)
+            if piece is chess.PAWN:
+                tropism_score -= inv_man_dist * 0.1
+            elif piece is chess.KNIGHT:
+                tropism_score -= inv_man_dist * 0.5
+            elif piece is chess.BISHOP:
+                tropism_score -= inv_man_dist * 1.0
+            elif piece is chess.ROOK:
+                tropism_score -= inv_man_dist * 0.5
+            elif piece is chess.QUEEN:
+                tropism_score -= inv_man_dist * 2.0
+
+    # pawn shield
+    adjacent = [king - 9, king - 8, king - 7,
+                king - 1, king + 1,
+                king + 7, king + 8, king + 9]
+    pawn_shield = 0
+
+    w_pawns = board.pieces(chess.PAWN, chess.WHITE)
+    for pawn in w_pawns:
+        if pawn in adjacent:
+            pawn_shield += 1
+    # print "pawn shield is: " + str(pawn_shield)
+
+    return tropism_score * 1.0 + pawn_shield_score * 1.0
+
 
 class Evaluator():
     def __init__(self, board=None):
         self._pos_dict = {}
 
-    # set major_piece = -1 for total piece count
     def num_major_pieces(self, board):
         pieces = 0
         for square in chess.SQUARES:
-            if board.piece_at(square) and not chess.PAWN:
-                pieces += 1
+            if board.piece_at(square) is not None:
+                if board.piece_at(square).piece_type is not chess.PAWN:
+                    pieces += 1
         return pieces
-
-    # def num_major_pieces(self, board):
-    #     major_pieces = 0
-    #     for square in chess.SQUARES:
-    #         if board.piece_at(square) and board.piece_at(square) is not chess.PAWN:
-    #             major_pieces += 1
-    #     return major_pieces
 
     def openinggame_eval(self, board):
         score = 0
 
         mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK)
-        pos_score = table_eval(board, chess.WHITE) - table_eval(board, chess.BLACK)
+        pos_score = pos_eval(board, chess.WHITE, False) - pos_eval(board, chess.BLACK, False)
         mob_score = mob_eval(board, chess.WHITE)
         ps_score = ps_eval(board, chess.WHITE)
 
         feature_scores = [mat_score, pos_score, mob_score, ps_score]
-        normalized_scores = [float(i)/sum(feature_scores) for i in feature_scores]
+        # normalized_scores = [float(i)/sum(feature_scores) for i in feature_scores]
         feature_weights = [1.0, 1.0, 1.0, 1.0]
 
+        print "material score : " + str(mat_score)
+        print "positional score : " + str(pos_score)
+        print "mobility score : " + str(mob_score)
+        print "pawn structure score : " + str(ps_score)
+        # print "king safety score : " + str(ks_score)
+
         for i in range(len(feature_scores)):
-            score += normalized_scores[i] * feature_weights[i]
+            score += feature_scores[i] * feature_weights[i]
 
         return score
 
@@ -227,18 +280,23 @@ class Evaluator():
         score = 0
 
         mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK)
-        pos_score = table_eval(board, chess.WHITE) - table_eval(board, chess.BLACK)
+        pos_score = pos_eval(board, chess.WHITE, False) - pos_eval(board, chess.BLACK, False)
         mob_score = mob_eval(board, chess.WHITE)
         ps_score = ps_eval(board, chess.WHITE)
+        ks_score = ks_eval(board, chess.WHITE) - ks_eval(board, chess.BLACK)
 
-        feature_scores = [mat_score, pos_score, mob_score, ps_score]
-        normalized_scores = [float(i)/sum(feature_scores) for i in feature_scores]
-        feature_weights = [1.0, 1.0, 1.0, 1.0]
+        feature_scores = [mat_score, pos_score, mob_score, ps_score, ks_score]
+        # normalized_scores = [float(i)/sum(feature_scores) for i in feature_scores]
+        feature_weights = [1.0, 1.0, 1.0, 1.0, 1.0]
 
-        # include too
+        print "material score : " + str(mat_score)
+        print "positional score : " + str(pos_score)
+        print "mobility score : " + str(mob_score)
+        print "pawn structure score : " + str(ps_score)
+        print "king safety score : " + str(ks_score)
 
         for i in range(len(feature_scores)):
-            score += normalized_scores[i] * feature_weights[i]
+            score += feature_scores[i] * feature_weights[i]
 
         return score
 
@@ -246,19 +304,26 @@ class Evaluator():
         score = 0
 
         mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK)
-        pos_score = table_eval(board, chess.WHITE) - table_eval(board, chess.BLACK)
+        pos_score = pos_eval(board, chess.WHITE, True) - pos_eval(board, chess.BLACK, True)
         mob_score = mob_eval(board, chess.WHITE)
         ps_score = ps_eval(board, chess.WHITE)
+        ks_score = ks_eval(board, chess.WHITE) - ks_eval(board, chess.BLACK)
 
-        feature_scores = [mat_score, pos_score, mob_score, ps_score]
-        normalized_scores = [float(i)/sum(feature_scores) for i in feature_scores]
-        feature_weights = [1.0, 1.0, 1.0, 1.0]
+        print "material score : " + str(mat_score)
+        print "positional score : " + str(pos_score)
+        print "mobility score : " + str(mob_score)
+        print "pawn structure score : " + str(ps_score)
+        print "king safety score : " + str(ks_score)
+
+        feature_scores = [mat_score, pos_score, mob_score, ps_score, ks_score]
+        # normalized_scores = [float(i)/sum(feature_scores) for i in feature_scores]
+        feature_weights = [1.0, 1.0, 1.0, 1.0, 1.0]
 
         # includes king safety
         # include pawn advantage
 
         for i in range(len(feature_scores)):
-            score += normalized_scores[i] * feature_weights[i]
+            score += feature_scores[i] * feature_weights[i]
 
         return score
 
@@ -267,16 +332,27 @@ class Evaluator():
         if board.zobrist_hash() in self._pos_dict:
             return self._pos_dict.get(board.zobrist_hash)
 
-        if self.num_major_pieces(board) > 12:
-            score = self.openinggame_eval(board)
-        elif self.num_major_pieces(board) > 7:
-            score = self.middlegame_eval(board)
+        if board.is_game_over():
+            if board.result == "1-0":
+                score = float("+inf")
+            elif board.result == "0-1":
+                score = float("-inf")
+            elif board.result == "1/2-1/2":
+                score = 0.0
         else:
-            score = self.endgame_eval(board)
+            # TODO: create score factor for if side is in check
+            if self.num_major_pieces(board) > 12:
+                score = self.openinggame_eval(board)
+            elif self.num_major_pieces(board) > 7:
+                score = self.middlegame_eval(board)
+            else:
+                score = self.endgame_eval(board)
 
         self._pos_dict[board.zobrist_hash] = score
         return score
 
 
 if __name__ == '__main__':
-    raise NotImplemented
+    # print(xy_square(63))
+    e = Evaluator()
+    e.evaluate(chess.Board())
