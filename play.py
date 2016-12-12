@@ -106,7 +106,7 @@ class MinimaxPlayer(Player):
         self._depth = depth
         self._opening_book = opening_book
         self._negamax = main.NegamaxAgent(chess.Board(), max_time=15,\
-                         transposition_table=True, abpruning=True, verbose=False)
+                         transposition_table=True, abpruning=True, verbose=True)
 
     def move(self, gn_current):
         assert gn_current.board().turn is True
@@ -140,8 +140,8 @@ class MinimaxPlayer(Player):
 def play():
     gn_current = chess.pgn.Game()
 
-    player_a = MinimaxPlayer(depth=4)
-    player_b = Sunfish(maxn=2)
+    player_a = MinimaxPlayer(depth=0)
+    player_b = Sunfish(maxn=3)
 
     times = {'A': 0.0, 'B': 0.0}
     move_count = 0

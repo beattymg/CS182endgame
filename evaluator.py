@@ -7,71 +7,69 @@ import random
 white_win_value = float("inf")
 black_win_value = float("-inf")
 
-pawn_table = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-              50, 50, 50, 50, 50, 50, 50, 50,
-              10, 10, 20, 30, 30, 20, 10, 10,
-              5,  5, 10, 25, 25, 10,  5,  5,
-              0,  0,  0, 20, 20,  0,  0,  0,
-              5, -5,-10,  0,  0,-10, -5,  5,
-              5, 10, 10,-20,-20, 10, 10,  5,
-              0,  0,  0,  0,  0,  0,  0,  0]
+pawn_table = [198, 198, 198, 198, 198, 198, 198, 198,
+              178, 198, 198, 198, 198, 198, 198, 178,
+              178, 198, 198, 198, 198, 198, 198, 178,
+              178, 198, 208, 218, 218, 208, 198, 178,
+              178, 198, 218, 238, 238, 218, 198, 178,
+              178, 198, 208, 218, 218, 208, 198, 178,
+              178, 198, 198, 198, 198, 198, 198, 178,
+              198, 198, 198, 198, 198, 198, 198, 198,]
 
-knight_table = [-50,-40,-30,-30,-30,-30,-40,-50,
-                -40,-20,  0,  0,  0,  0,-20,-40,
-                -30,  0, 10, 15, 15, 10,  0,-30,
-                -30,  5, 15, 20, 20, 15,  5,-30,
-                -30,  0, 15, 20, 20, 15,  0,-30,
-                -30,  5, 10, 15, 15, 10,  5,-30,
-                -40,-20,  0,  5,  5,  0,-20,-40,
-                -50,-40,-30,-30,-30,-30,-40,-50]
+knight_table = [627, 762, 786, 798, 798, 786, 762, 627,
+                763, 798, 822, 834, 834, 822, 798, 763,
+                817, 852, 876, 888, 888, 876, 852, 817,
+                797, 832, 856, 868, 868, 856, 832, 797,
+                799, 834, 858, 870, 870, 858, 834, 799,
+                758, 793, 817, 829, 829, 817, 793, 758,
+                739, 774, 798, 810, 810, 798, 774, 739,
+                683, 718, 742, 754, 754, 742, 718, 683,]
 
-bishop_table = [-20,-10,-10,-10,-10,-10,-10,-20,
-                -10,  0,  0,  0,  0,  0,  0,-10,
-                -10,  0,  5, 10, 10,  5,  0,-10,
-                -10,  5,  5, 10, 10,  5,  5,-10,
-                -10,  0, 10, 10, 10, 10,  0,-10,
-                -10, 10, 10, 10, 10, 10, 10,-10,
-                -10,  5,  0,  0,  0,  0,  5,-10,
-                -20,-10,-10,-10,-10,-10,-10,-20]
+bishop_table = [797, 824, 817, 808, 808, 817, 824, 797,
+                814, 841, 834, 825, 825, 834, 841, 814, 0,
+                818, 845, 838, 829, 829, 838, 845, 818,
+                824, 851, 844, 835, 835, 844, 851, 824,
+                827, 854, 847, 838, 838, 847, 854, 827,
+                826, 853, 846, 837, 837, 846, 853, 826,
+                817, 844, 837, 828, 828, 837, 844, 817,
+                792, 819, 812, 803, 803, 812, 819, 792,]
 
-rook_table = [0,  0,  0,  0,  0,  0,  0,  0,
-              5, 10, 10, 10, 10, 10, 10,  5,
-             -5,  0,  0,  0,  0,  0,  0, -5,
-             -5,  0,  0,  0,  0,  0,  0, -5,
-             -5,  0,  0,  0,  0,  0,  0, -5,
-             -5,  0,  0,  0,  0,  0,  0, -5,
-             -5,  0,  0,  0,  0,  0,  0, -5,
-              0,  0,  0,  5,  5,  0,  0,  0]
+rook_table = [1258, 1263, 1268, 1272, 1272, 1268, 1263, 1258,
+              1258, 1263, 1268, 1272, 1272, 1268, 1263, 1258,
+             1258, 1263, 1268, 1272, 1272, 1268, 1263, 1258,
+             1258, 1263, 1268, 1272, 1272, 1268, 1263, 1258,
+              1258, 1263, 1268, 1272, 1272, 1268, 1263, 1258,
+              1258, 1263, 1268, 1272, 1272, 1268, 1263, 1258,
+              1258, 1263, 1268, 1272, 1272, 1268, 1263, 1258,
+              1258, 1263, 1268, 1272, 1272, 1268, 1263, 1258]
 
-queen_table = [-20,-10,-10, -5, -5,-10,-10,-20,
-            -10,  0,  0,  0,  0,  0,  0,-10,
-            -10,  0,  5,  5,  5,  5,  0,-10,
-             -5,  0,  5,  5,  5,  5,  0, -5,
-              0,  0,  5,  5,  5,  5,  0, -5,
-            -10,  5,  5,  5,  5,  5,  0,-10,
-            -10,  0,  5,  0,  0,  0,  0,-10,
-            -20,-10,-10, -5, -5,-10,-10,-20]
+queen_table = [2529, 2529, 2529, 2529, 2529, 2529, 2529, 2529,
+        2529, 2529, 2529, 2529, 2529, 2529, 2529, 2529,
+        2529, 2529, 2529, 2529, 2529, 2529, 2529, 2529,
+        2529, 2529, 2529, 2529, 2529, 2529, 2529, 2529,
+        2529, 2529, 2529, 2529, 2529, 2529, 2529, 2529,
+        2529, 2529, 2529, 2529, 2529, 2529, 2529, 2529,
+        2529, 2529, 2529, 2529, 2529, 2529, 2529, 2529,
+        2529, 2529, 2529, 2529, 2529, 2529, 2529, 2529]
 
-king_table_open = [-30,-40,-40,-50,-50,-40,-40,-30,
-                -30,-40,-40,-50,-50,-40,-40,-30,
-                -30,-40,-40,-50,-50,-40,-40,-30,
-                -30,-40,-40,-50,-50,-40,-40,-30,
-                -20,-30,-30,-40,-40,-30,-30,-20,
-                -10,-20,-20,-20,-20,-20,-20,-10,
-                 20, 20,  0,  0,  0,  0, 20, 20,
-                 20, 30, 10,  0,  0, 10, 30, 20]
+king_table_open = [60098, 60132, 60073, 60025, 60025, 60073, 60132, 60098,
+                   60119, 60153, 60094, 60046, 60046, 60094, 60153, 60119,
+                   60146, 60180, 60121, 60073, 60073, 60121, 60180, 60146,
+                   60173, 60207, 60148, 60100, 60100, 60148, 60207, 60173,
+                   60196, 60230, 60171, 60123, 60123, 60171, 60230, 60196,
+                   60224, 60258, 60199, 60151, 60151, 60199, 60258, 60224,
+                   60287, 60321, 60262, 60214, 60214, 60262, 60321, 60287,
+                   60298, 60332, 60273, 60225, 60225, 60273, 60332, 60298]
 
-king_table_end = [-50,-40,-30,-20,-20,-30,-40,-50,
-                -30,-20,-10,  0,  0,-10,-20,-30,
-                -30,-10, 20, 30, 30, 20,-10,-30,
-                -30,-10, 30, 40, 40, 30,-10,-30,
-                -30,-10, 30, 40, 40, 30,-10,-30,
-                -30,-10, 20, 30, 30, 20,-10,-30,
-                -30,-30,  0,  0,  0,  0,-30,-30,
-                -50,-30,-30,-30,-30,-30,-30,-50 ]
+king_table_end = [60098, 60132, 60073, 60025, 60025, 60073, 60132, 60098,
+                   60119, 60153, 60094, 60046, 60046, 60094, 60153, 60119,
+                   60146, 60180, 60121, 60073, 60073, 60121, 60180, 60146,
+                   60173, 60207, 60148, 60100, 60100, 60148, 60207, 60173,
+                   60196, 60230, 60171, 60123, 60123, 60171, 60230, 60196,
+                   60224, 60258, 60199, 60151, 60151, 60199, 60258, 60224,
+                   60287, 60321, 60262, 60214, 60214, 60262, 60321, 60287,
+                   60298, 60332, 60273, 60225, 60225, 60273, 60332, 60298]
 
-# create 64 length lists -- ie tables for each piece
-# go through table:
 
 def pos_eval(board, color, endgame):
     score = 0
@@ -84,19 +82,19 @@ def pos_eval(board, color, endgame):
                 square = flip(square)
 
             if piece is chess.PAWN:
-                score += (pawn_table[square] / 50.0)
+                score += pawn_table[square]
             elif piece is chess.KNIGHT:
-                score += (knight_table[square] / 50.0)
+                score += knight_table[square]
             elif piece is chess.BISHOP:
-                score += (bishop_table[square] / 50.0)
+                score += bishop_table[square]
             elif piece is chess.ROOK:
-                score += (rook_table[square] / 50.0)
+                score += rook_table[square]
             elif piece is chess.QUEEN:
-                score += (queen_table[square] / 50.0)
+                score += queen_table[square]
             elif piece is chess.KING and endgame:
-                score += (king_table_end[square] / 50.0)
+                score += king_table_end[square]
             elif piece is chess.KING:
-                score += (king_table_open[square] / 50.0)
+                score += king_table_open[square]
 
     return score
 
@@ -201,7 +199,6 @@ def xy_square(square):
 # king safety evaluation feature
 def ks_eval(board, color):
     tropism_score = 0
-    pawn_shield_score = 0
 
     # tropism
     king = 0
@@ -228,18 +225,22 @@ def ks_eval(board, color):
                 tropism_score -= inv_man_dist * 2.0
 
     # pawn shield
-    adjacent = [king - 9, king - 8, king - 7,
-                king - 1, king + 1,
-                king + 7, king + 8, king + 9]
+    front_adjacent = [king - 9, king - 8, king - 7]
+    side_adjacent = [king - 1, king + 1]
+    behind_adjacent = [king + 7, king + 8, king + 9]
     pawn_shield = 0
 
     w_pawns = board.pieces(chess.PAWN, chess.WHITE)
     for pawn in w_pawns:
-        if pawn in adjacent:
+        if pawn in front_adjacent:
+            pawn_shield += 3
+        elif pawn in side_adjacent:
+            pawn_shield += 2
+        elif pawn in behind_adjacent:
             pawn_shield += 1
     # print "pawn shield is: " + str(pawn_shield)
 
-    return tropism_score * 1.0 + pawn_shield_score * 1.0
+    return tropism_score * 0.3 + pawn_shield * 1.0
 
 
 class Evaluator():
@@ -258,14 +259,14 @@ class Evaluator():
     def openinggame_eval(self, board):
         score = 0
 
-        mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK) / 39.0
+        mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK)
         pos_score = pos_eval(board, chess.WHITE, False) - pos_eval(board, chess.BLACK, False)
-        mob_score = mob_eval(board, chess.WHITE) / 32.0
-        ps_score = ps_eval(board, chess.WHITE) / 5.0
+        mob_score = mob_eval(board, chess.WHITE)
+        ps_score = ps_eval(board, chess.WHITE)
 
         feature_scores = [mat_score, pos_score, mob_score, ps_score]
         # normalized_scores = [float(i)/sum(feature_scores) for i in feature_scores]
-        feature_weights = [10.0, 4.0, 2.0, 3.0]
+        feature_weights = [9.0, 0.01, 1.0, 3.0, 1.0]
 
         if self.verbose:
             print "OPENING"
@@ -282,15 +283,15 @@ class Evaluator():
     def middlegame_eval(self, board):
         score = 0
 
-        mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK) / 39.0
+        mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK)
         pos_score = pos_eval(board, chess.WHITE, False) - pos_eval(board, chess.BLACK, False)
-        mob_score = mob_eval(board, chess.WHITE) / 32.0
-        ps_score = ps_eval(board, chess.WHITE) / 5.0
-        ks_score = (ks_eval(board, chess.WHITE) - ks_eval(board, chess.BLACK)) / 60.0
+        mob_score = mob_eval(board, chess.WHITE)
+        ps_score = ps_eval(board, chess.WHITE)
+        ks_score = ks_eval(board, chess.WHITE) - ks_eval(board, chess.BLACK)
 
         feature_scores = [mat_score, pos_score, mob_score, ps_score, ks_score]
         # normalized_scores = [float(i)/sum(feature_scores) for i in feature_scores]
-        feature_weights = [10.0, 6.0, 5.0, 3.0, 3.0]
+        feature_weights = [8.0, 0.01, 1.0, 3.0, 1.0]
 
         if self.verbose:
             print "MIDDLEGAME"
@@ -301,18 +302,22 @@ class Evaluator():
             print "king safety score : " + str(ks_score)
 
         for i in range(len(feature_scores)):
+            print str(feature_scores[i] * feature_weights[i])
             score += feature_scores[i] * feature_weights[i]
+
+        if board.is_check():
+            score += 20
 
         return score
 
     def endgame_eval(self, board):
         score = 0
 
-        mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK) / 39.0
+        mat_score = material_score(board, chess.WHITE) - material_score(board, chess.BLACK)
         pos_score = pos_eval(board, chess.WHITE, False) - pos_eval(board, chess.BLACK, False)
-        mob_score = mob_eval(board, chess.WHITE) / 32.0
-        ps_score = ps_eval(board, chess.WHITE) / 5.0
-        ks_score = (ks_eval(board, chess.WHITE) - ks_eval(board, chess.BLACK)) / 60.0
+        mob_score = mob_eval(board, chess.WHITE)
+        ps_score = ps_eval(board, chess.WHITE)
+        ks_score = ks_eval(board, chess.WHITE) - ks_eval(board, chess.BLACK)
 
         if self.verbose:
             print "ENDGAME"
@@ -324,12 +329,15 @@ class Evaluator():
 
         feature_scores = [mat_score, pos_score, mob_score, ps_score, ks_score]
         # normalized_scores = [float(i)/sum(feature_scores) for i in feature_scores]
-        feature_weights = [10.0, 4.0, 3.0, 5.0, 6.0]
+        feature_weights = [10.0, 2.0, 3.0, 2.0, 2.0]
 
-        # include pawn advantage
+        # TODO: include pawn advantage
 
         for i in range(len(feature_scores)):
             score += feature_scores[i] * feature_weights[i]
+
+        if board.is_check():
+            score += 15
 
         return score
 
@@ -339,20 +347,21 @@ class Evaluator():
             return self._pos_dict.get(board.zobrist_hash)
 
         if board.is_game_over():
-            if board.result == "1-0":
-                score = white_win_value
-            elif board.result == "0-1":
-                score = black_win_value
+            if board.result() == "0-1":
+                return black_win_value
+            if board.result() == "1-0":
+                return white_win_value
             else:
-                score = 0.0
+                return 0
+
+        # return material_score(board, chess.WHITE) - material_score(board, chess.BLACK)
+
+        if self.num_major_pieces(board) > 12:
+            score = self.openinggame_eval(board)
+        elif self.num_major_pieces(board) > 7:
+            score = self.middlegame_eval(board)
         else:
-            # TODO: create score factor for if side is in check
-            if self.num_major_pieces(board) > 12:
-                score = self.openinggame_eval(board)
-            elif self.num_major_pieces(board) > 7:
-                score = self.middlegame_eval(board)
-            else:
-                score = self.endgame_eval(board)
+            score = self.endgame_eval(board)
 
         self._pos_dict[board.zobrist_hash] = score
         return score
@@ -360,5 +369,8 @@ class Evaluator():
 
 if __name__ == '__main__':
     # print(xy_square(63))
-    e = Evaluator()
-    e.evaluate(chess.Board())
+    e = Evaluator(verbose=True)
+    # e.evaluate(chess.Board())
+    print(e.evaluate(chess.Board('1k1r1b1r/pp3ppp/3p4/2p1p3/6n1/1NB2N2/1P1KP1PP/1q3B1R b KQkq - 0 1')))
+    print(e.evaluate(chess.Board('1k1r1b1r/pp3ppp/3p4/2p1p3/6P1/1NB2N2/1P1KP1P1/1q3BR1 b k - 0 1')))
+

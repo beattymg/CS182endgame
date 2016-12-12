@@ -36,6 +36,7 @@ class NegamaxAgent():
 
     def negamax(self, depth, alpha, beta, color):
         if depth == 0 or self.board.is_game_over():
+            # return color * evals.evaluate(self.board)
             return color * self.evaluator.evaluate(self.board)
 
         legal_moves = self.board.legal_moves
@@ -94,6 +95,7 @@ class NegamaxAgent():
         depth = 1
         start = timer()
         while timer() - start <= self.max_time:
+        # while depth < 4:
             iter_start = timer()
 
             depth += 1
