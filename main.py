@@ -23,7 +23,7 @@ class TableEntry:
 
 # an iterative deepening minimax agent that can use alpha-beta and transposition tables to prune nodes
 class NegamaxAgent():
-    def __init__(self, board, max_time, abpruning=True, transposition_table=True, table_size=2**16, verbose=True):
+    def __init__(self, board, max_time, abpruning=True, transposition_table=True, table_size=2**16, verbose=False):
         self.board = board
         self.max_time = max_time
         self.abpruning = abpruning
@@ -95,7 +95,7 @@ class NegamaxAgent():
         depth = 1
         start = timer()
         while timer() - start <= self.max_time:
-        # while depth < 4:
+        # while depth < 3:
             iter_start = timer()
 
             depth += 1

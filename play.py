@@ -28,9 +28,11 @@ class RLPlayer(Player):
         raise NotImplementedError()
 
 class Sunfish(Player):
-    def __init__(self, maxn=1e4):
+    def __init__(self, maxn=1e4, dumb=False):
         self._pos = sunfish.Position(sunfish.initial, 0, (True,True), (True,True), 0, 0)
         self._maxn = maxn
+        if dumb:
+            sunfish.set_pst()
 
     def move(self, gn_current):
         searcher = sunfish.Searcher()
@@ -67,7 +69,7 @@ class Human(Player):
     def move(self, gn_current):
         bb = gn_current.board()
 
-        print bb
+        # print bb
 
         def get_move(move_str):
             try:
@@ -102,11 +104,11 @@ class Random(Player):
         return
 
 class MinimaxPlayer(Player):
-    def __init__(self, depth=2, opening_book=True):
+    def __init__(self, time, verbose, depth=2, opening_book=True):
         self._depth = depth
         self._opening_book = opening_book
-        self._negamax = main.NegamaxAgent(chess.Board(), max_time=15,\
-                         transposition_table=True, abpruning=True, verbose=True)
+        self._negamax = main.NegamaxAgent(chess.Board(), max_time=time,\
+                         transposition_table=True, abpruning=True, verbose=verbose)
 
     def move(self, gn_current):
         assert gn_current.board().turn is True
@@ -140,8 +142,9 @@ class MinimaxPlayer(Player):
 def play():
     gn_current = chess.pgn.Game()
 
-    player_a = MinimaxPlayer(depth=0)
-    player_b = Sunfish(maxn=3)
+    player_a = MinimaxPlayer(10, True, depth=0)
+    player_b = Sunfish(maxn=0, dumb=False)
+    # player_b = Human()
 
     times = {'A': 0.0, 'B': 0.0}
     move_count = 0
@@ -186,11 +189,6 @@ def play_games(num_games):
 
 
 if __name__ == '__main__':
-    # play_games(6)
+    # play_games(5)
     play()
-    # play_games(2)
-    # stockfish = Stockfish()
-    # stockfish.set_position(['e2e4', 'e7e6'])
-    # print(stockfish.get_best_move())
-    # print(stockfish.is_move_correct('a2a3'))
 
