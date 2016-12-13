@@ -1,4 +1,3 @@
-import chess
 import chess.polyglot
 from timeit import default_timer as timer
 from evaluator import Evaluator, SimpleEvaluator
@@ -195,25 +194,25 @@ class DeepCrimsonAgent():
         self.board.push(move)
 
 
-if __name__ == '__main__':
-    print "TACTIC 1"
-    test_board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
-    # print "\nTACTIC 2"
+# if __name__ == '__main__':
+    # print "\nTACTIC 1 -- Mate in 5"
+    # test_board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
+    # print "\nTACTIC 2 -- Material in 5"
     # test_board = chess.Board("r1b1k1r1/p1pq1p2/1p1p1npp/3Pp3/2P4N/2PBP3/P1Q2PPP/R4RK1 b q - 3 15")
-    # print "\nTACTIC 3"
+    # print "\nTACTIC 3 -- Material in 5"
     # test_board = chess.Board("rn1q1rk1/ppp1b1pp/3pP3/3p4/3P1B2/5NP1/PPP4P/R2Q1K1R b - - 0 13")
-    # print "\nTACTIC 4"
-    # test_board = chess.Board("5k2/6pp/R2P1p2/4p3/pr2P3/5P1P/8/6K1 w - - 1 33")
+    # print "\nTACTIC 4 -- Material in 7 (endgame)"
+    # test_board = chess.Board("5k2/6pp/R2P1p2/4p3/pr2P3/5PKP/8/8 w - - 9 37")
 
-    agent = DeepCrimsonAgent(test_board, max_depth=6, evaluation_type=EvalType.SIMPLE, verbose=True)
-    print "Negamax search"
-    print "FEN:", test_board.fen()
-    move = agent.negamax_search()
-    print "Move:", move
+    # agent = DeepCrimsonAgent(test_board, max_depth=5, abpruning=False, transposition_table=False, evaluation_type=EvalType.SIMPLE, verbose=True)
+    # print "Negamax search"
+    # print "FEN:", test_board.fen()
+    # move = agent.negamax_search()
+    # print "Move:", move
 
-    agent = DeepCrimsonAgent(test_board, max_depth=6, evaluation_type=EvalType.SIMPLE, verbose=True)
-    print "\nMTD-(f) search"
-    print "FEN:", test_board.fen()
-    move = agent.mtdf_search()
-    print "Move:", move
+    # agent = DeepCrimsonAgent(test_board, max_depth=5, evaluation_type=EvalType.SIMPLE, verbose=True)
+    # print "\nMTD-(f) search"
+    # print "FEN:", test_board.fen()
+    # move = agent.mtdf_search()
+    # print "Move:", move
 
