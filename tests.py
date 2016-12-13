@@ -8,9 +8,9 @@ import main
 
 
 def test_search():
-    agent = main.NegamaxAgent(chess.Board("r1b1k1r1/p1pq1p2/1p1p1npp/3Pp3/2P4N/2PBP3/P1Q2PPP/R4RK1 b q - 3 15"), max_time=300,\
-                         transposition_table=True, abpruning=True)
-    agent.search()
+    agent = main.DeepCrimsonAgent(chess.Board("r1b1k1r1/p1pq1p2/1p1p1npp/3Pp3/2P4N/2PBP3/P1Q2PPP/R4RK1 b q - 3 15"), max_time=300, \
+                                  transposition_table=True, abpruning=True)
+    agent.negamax_search()
 
     print "TACTIC 1"
     test_board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")

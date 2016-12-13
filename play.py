@@ -1,14 +1,12 @@
 import time
 import traceback
 
+import random
 import chess
 import chess.pgn
 import chess.uci
 
 import sunfish
-
-from stockfish import Stockfish
-import subprocess
 
 import main
 
@@ -107,8 +105,20 @@ class MinimaxPlayer(Player):
     def __init__(self, time, verbose, depth=2, opening_book=True):
         self._depth = depth
         self._opening_book = opening_book
-        self._negamax = main.NegamaxAgent(chess.Board(), max_time=time,\
-                         transposition_table=True, abpruning=True, verbose=verbose)
+        self._negamax = main.DeepCrimsonAgent(chess.Board(), max_time=time, evaluation_type=main.EvalType.MATERIAL, \
+                                              transposition_table=True, abpruning=True, verbose=verbose)
+
+    def search_with_opening_book(board):
+        reader = chess.polyglot.open_reader('komodo.bin')
+        moves = []
+        for entry in reader.find_all(board):
+            if entry.move() in board.legal_moves:
+                moves.append(entry.move())
+
+        if not moves:
+            return chess.Move.null()
+        else:
+            return random.choice(moves)
 
     def move(self, gn_current):
         assert gn_current.board().turn is True
@@ -120,12 +130,12 @@ class MinimaxPlayer(Player):
         t0 = time.time()
 
         if self._opening_book:
-            uci_move = str(main.search_with_opening_book(board))
+            uci_move = str(self.search_with_opening_book(board))
             if uci_move == "0000":
                 self._opening_book = False
-                uci_move = str(self._negamax.search())
+                uci_move = str(self._negamax.negamax_search())
         else:
-            uci_move = str(self._negamax.search())
+            uci_move = str(self._negamax.negamax_search())
 
         move = create_move(gn_current.board(), uci_move)
         print time.time() - t0, move
@@ -143,8 +153,8 @@ def play():
     gn_current = chess.pgn.Game()
 
     player_a = MinimaxPlayer(10, True, depth=0)
-    player_b = Sunfish(maxn=0, dumb=False)
-    # player_b = Human()
+    # player_b = Sunfish(maxn=0, dumb=False)
+    player_b = Human()
 
     times = {'A': 0.0, 'B': 0.0}
     move_count = 0
