@@ -26,7 +26,7 @@ class TableEntry:
 
 # an iterative deepening minimax agent that can use alpha-beta and transposition tables to prune nodes
 class DeepCrimsonAgent():
-    def __init__(self, board, max_depth, evaluation_type, abpruning=True, transposition_table=True, table_size=2**19, verbose=False):
+    def __init__(self, board, max_depth, evaluation_type, abpruning=True, transposition_table=True, table_size=2**20, verbose=False):
         # initialize board
         self.board = board
 
@@ -109,7 +109,7 @@ class DeepCrimsonAgent():
     # returns the move associated with the highest negamax value
     def negamax_search(self):
         color = 1 if self.board.turn else -1
-        for depth in range(1, self.max_depth + 1):
+        for depth in range(1, self.max_depth):
             iter_start = timer()
             depth += 1
             alpha = float("-inf")
@@ -196,21 +196,24 @@ class DeepCrimsonAgent():
 
 
 if __name__ == '__main__':
-    agent = DeepCrimsonAgent(chess.Board("5k2/6pp/R2P1p2/4p3/pr2P3/5PKP/8/8 w - - 4 3"), max_depth=4, \
-                             evaluation_type=EvalType.SIMPLE, transposition_table=True, abpruning=True, verbose=True)
-    print "Negamax search"
-    move = agent.negamax_search()
-    print "Move:", move
-
-    # print "\nMTD-(f) search"
-    # move = agent.mtdf_search()
-    # print "Move:", move
-
-    # print "TACTIC 1"
-    # test_board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
+    print "TACTIC 1"
+    test_board = chess.Board("1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1")
     # print "\nTACTIC 2"
     # test_board = chess.Board("r1b1k1r1/p1pq1p2/1p1p1npp/3Pp3/2P4N/2PBP3/P1Q2PPP/R4RK1 b q - 3 15")
     # print "\nTACTIC 3"
     # test_board = chess.Board("rn1q1rk1/ppp1b1pp/3pP3/3p4/3P1B2/5NP1/PPP4P/R2Q1K1R b - - 0 13")
     # print "\nTACTIC 4"
     # test_board = chess.Board("5k2/6pp/R2P1p2/4p3/pr2P3/5P1P/8/6K1 w - - 1 33")
+
+    agent = DeepCrimsonAgent(test_board, max_depth=6, evaluation_type=EvalType.SIMPLE, verbose=True)
+    print "Negamax search"
+    print "FEN:", test_board.fen()
+    move = agent.negamax_search()
+    print "Move:", move
+
+    agent = DeepCrimsonAgent(test_board, max_depth=6, evaluation_type=EvalType.SIMPLE, verbose=True)
+    print "\nMTD-(f) search"
+    print "FEN:", test_board.fen()
+    move = agent.mtdf_search()
+    print "Move:", move
+
