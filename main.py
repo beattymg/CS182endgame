@@ -1,8 +1,7 @@
 import chess
 import chess.polyglot
 from timeit import default_timer as timer
-import evals
-from evaluator import Evaluator
+from evaluator import Evaluator, SimpleEvaluator
 
 
 class NodeType:
@@ -12,8 +11,8 @@ class NodeType:
 
 
 class EvalType:
-    MATERIAL = 1   # nodes whose value was exactly calculated
-    POSITION = 2   # nodes with a value lower than the lower-bound alpha
+    SIMPLE = 1   # nodes whose value was exactly calculated
+    COMPLEX = 2   # nodes with a value lower than the lower-bound alpha
 
 
 class TableEntry:
@@ -35,10 +34,10 @@ class DeepCrimsonAgent():
         self.max_depth = max_depth
 
         # choose evaluation function
-        if evaluation_type == EvalType.MATERIAL:
-            self.evaluate = evals.evaluate
-        elif evaluation_type == EvalType.POSITION:
-            self.evaluate = Evaluator(verbose=False).evaluate
+        if evaluation_type == EvalType.SIMPLE:
+            self.evaluator = SimpleEvaluator()
+        elif evaluation_type == EvalType.COMPLEX:
+            self.evaluator = Evaluator(verbose=False)
 
         # choose whether or not to alpha-beta prune
         self.abpruning = abpruning
@@ -55,7 +54,7 @@ class DeepCrimsonAgent():
     # returns the negamax value of the current board state
     def negamax_value(self, depth, alpha, beta, color):
         if depth == 0 or self.board.is_game_over():
-            return color * self.evaluate(self.board)
+            return color * self.evaluator.evaluate(self.board)
 
         legal_moves = self.board.legal_moves
 
@@ -197,8 +196,8 @@ class DeepCrimsonAgent():
 
 
 if __name__ == '__main__':
-    agent = DeepCrimsonAgent(chess.Board("5k2/6pp/R2P1p2/4p3/pr2P3/5PKP/8/8 w - - 4 3"), max_depth=8, \
-                             evaluation_type=EvalType.MATERIAL, transposition_table=True, abpruning=True, verbose=True)
+    agent = DeepCrimsonAgent(chess.Board("5k2/6pp/R2P1p2/4p3/pr2P3/5PKP/8/8 w - - 4 3"), max_depth=4, \
+                             evaluation_type=EvalType.SIMPLE, transposition_table=True, abpruning=True, verbose=True)
     print "Negamax search"
     move = agent.negamax_search()
     print "Move:", move
