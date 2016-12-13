@@ -11,7 +11,7 @@ black_win_value = float("-inf")
 
 '''
 Below are piece-square tables used in our positional feature to
-give the approximate value of that specific piece in a position
+give the approximate value of that specific piece in a position.
 '''
 pawn_table = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
               50, 50, 50, 50, 50, 50, 50, 50,

@@ -94,10 +94,14 @@ class Human(Player):
 
 # Class representing our AI agent
 class AgentPlayer(Player):
-    def __init__(self, verbose, depth=2, opening_book=True):
+    def __init__(self, verbose, negamax_search=True, eval_simple=True, depth=2, opening_book=True):
         self._depth = depth
         self._opening_book = opening_book
-        self._negamax = main.DeepCrimsonAgent(chess.Board(), max_depth=depth, evaluation_type=main.EvalType.SIMPLE, verbose=verbose)
+        self._negamax = negamax_search
+        if eval_simple:
+            self._agent = main.DeepCrimsonAgent(chess.Board(), max_depth=depth, evaluation_type=main.EvalType.SIMPLE, verbose=verbose)
+        else:
+            self._agent = main.DeepCrimsonAgent(chess.Board(), max_depth=depth, evaluation_type=main.EvalType.COMPLEX, verbose=verbose)
 
     def search_with_opening_book(self,board):
         reader = chess.polyglot.open_reader('komodo.bin')
@@ -115,7 +119,7 @@ class AgentPlayer(Player):
         # assert gn_current.board().turn == True
 
         board = gn_current.board()
-        self._negamax.board = board
+        self._agent.board = board
         t0 = time.time()
 
         # checks opening book moves if agent uses opening book
@@ -123,9 +127,15 @@ class AgentPlayer(Player):
             uci_move = str(self.search_with_opening_book(board))
             if uci_move == "0000":
                 self._opening_book = False
-                uci_move = str(self._negamax.negamax_search())
+                if self._negamax:
+                    uci_move = str(self._agent.negamax_search())
+                else:
+                    uci_move = str(self._agent.mtdf_search())
         else:
-            uci_move = str(self._negamax.negamax_search())
+            if self._negamax:
+                uci_move = str(self._agent.negamax_search())
+            else:
+                uci_move = str(self._agent.mtdf_search())
 
         move = create_move(gn_current.board(), uci_move)
         print time.time() - t0, move
