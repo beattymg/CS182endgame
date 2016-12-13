@@ -1,6 +1,11 @@
 #!/usr/bin/env pypy
 # -*- coding: utf-8 -*-
 
+# Sunfish.py
+# This chess engine was created by Thomas Sahle.
+# We test our chess agents against this engine.
+# More details can be found at: https://github.com/thomasahle/sunfish
+
 from __future__ import print_function
 import re, sys, time
 from itertools import count
@@ -128,7 +133,7 @@ pst = {
 }
 
 
-blah = {
+test_pst = {
     'P': (0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
