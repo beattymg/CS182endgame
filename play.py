@@ -14,7 +14,7 @@ import sunfish
 
 import main
 
-# turn a UCI move into move readable by sunfish
+# turn a UCI move into move readable by Sunfish
 def create_move(board, crdn):
     move = chess.Move.from_uci(crdn)
     if board.piece_at(move.from_square).piece_type == chess.PAWN:
@@ -99,7 +99,7 @@ class AgentPlayer(Player):
         self._opening_book = opening_book
         self._negamax = main.DeepCrimsonAgent(chess.Board(), max_depth=depth, evaluation_type=main.EvalType.SIMPLE, verbose=verbose)
 
-    def search_with_opening_book(board):
+    def search_with_opening_book(self,board):
         reader = chess.polyglot.open_reader('komodo.bin')
         moves = []
         for entry in reader.find_all(board):
@@ -148,6 +148,7 @@ def play():
     move_count = 0
 
     print "NEW GAME\n"
+    print str(gn_current.board())
 
     while True:
         for side, player in [('A', player_a), ('B', player_b)]:
